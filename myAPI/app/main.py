@@ -1,5 +1,5 @@
 # importaciones
-from fastapi import FastAPI
+from fastapi import FastAPI, status, HTTPException
 import asyncio 
 from typing import Optional
 
@@ -13,9 +13,9 @@ app = FastAPI(
 
 # TABLA FICTICIA
 usuarios = [
-    {"id":1, "nombre":"Diego", "edad":21},
-    {"id":2, "nombre":"Diego2", "edad":22},
-    {"id":3, "nombre":"Diego3", "edad":23}
+    {"id":"1", "nombre":"Diego", "edad":"21"},
+    {"id":"2", "nombre":"Diego2", "edad":"22"},
+    {"id":"3", "nombre":"Diego3", "edad":"23"}
 ]
 
 # endpoints
@@ -34,7 +34,7 @@ async def hola():
 
 
 # PARAMETRO OBLIGATORIO
-@app.get("/v1/usuario/{id}", tags=['Paramétro Obligatorio']) # Con las llaves especificamos que el parametro es obligatorio
+@app.get("/v1/ParametroOb/{id}", tags=['Paramétro Obligatorio']) # Con las llaves especificamos que el parametro es obligatorio
 async def consultaUno(id:int):
     return {"mensaje":"Usuario encontrado",
             "usuario:":id,
@@ -42,7 +42,7 @@ async def consultaUno(id:int):
 
 # PARAMETRO OPCIONAL
 # requisitos: el endpoint debe de tener otro nombre porque son get, no necesita las llaves y la funcion debe de tener su propio nombre
-@app.get("/v1/usuarios/", tags=['Paramétro Opcional']) # Con las llaves especificamos que el parametro es obligatorio
+@app.get("/v1/ParametroOp/", tags=['Paramétro Opcional']) # Con las llaves especificamos que el parametro es obligatorio
 async def consultarTodos(id:Optional[int]=None):
     if id is not None:
         for usuarioK in usuarios:
@@ -55,3 +55,69 @@ async def consultarTodos(id:Optional[int]=None):
     else:
         return{"mensaje": "no se insertó ningún usuario para buscar",
                "status":"200"}
+
+# CONSULTAR USUARIOS DE NUESTRA TABLA FICTICIA   
+@app.get("/v1/usuarios/", tags=['CRUD HTTP'])
+async def consultaT():
+    return {"status":"200",
+            "Numero de usuarios":len(usuarios),
+            "Usuarios":usuarios}
+
+# AGREGAR UN USUARIO A NUESTRA TABLA FICTICIA
+@app.post("/v1/usuarios/", tags=['CRUD HTTP'])
+async def agregarUsuario(usuario:dict):
+    for usr in usuarios:
+        if usr["id"] == usuario.get("id"):
+            raise HTTPException(
+                status_code= 400,
+                detail="El id ya existe"
+            )
+    usuarios.append(usuario)
+    return{
+        "mensaje":"Usuario agregado correctamente",
+        "usuario":usuario,
+        "status":"200"
+    }
+
+@app.delete("/v1/usuarios/{id}", tags=['CRUD HTTP'])
+async def eliminarUsuario(id:str):
+    for usr in usuarios:
+        if usr["id"] == id:
+            usuarios.remove(usr)
+            return{
+                "msj":"Usuario eliminado",
+                "usuario":usr,
+                "status":"200"
+            }
+    raise HTTPException(
+        status_code= 400,
+        detail="El usuario que se desea eliminar no existe"
+    )
+
+@app.patch("/v1/usuarios/", tags=['CRUD HTTP'])
+async def actualizarUsuario(usuario:dict):
+    for usr in usuarios:
+        if usr["id"] == usuario.get("id"):
+            usr["nombre"] = usuario.get("nombre")
+            usr["edad"] = usuario.get("edad")
+            return{
+                "msj":"Usuario actualizado",
+                "usuario":usr,
+                "status":"200"
+            }
+    raise HTTPException(
+        status_code= 400,
+        detail="El id no existe"
+    )
+
+@app.put("v1/usuarios/", tags=['CRUD HTTP'])
+async def actualizarUsuario2(usuario:dict):
+    for usr in usuarios:
+        if usr["id"] == usuario.get("id"):
+            usr["nombre"] = usuario.get("nombre")
+            usr["edad"] = usuario.get("edad")
+            return{
+                "msj":"Usuario actualizado",
+                "usuario":usr,
+                "status":"200"
+            }
