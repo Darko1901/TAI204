@@ -2,6 +2,7 @@
 from fastapi import FastAPI, status, HTTPException
 import asyncio 
 from typing import Optional
+from pydantic import BaseModel,Field
 
 # instancias del servidor
 
@@ -17,6 +18,13 @@ usuarios = [
     {"id":"2", "nombre":"Diego2", "edad":"22"},
     {"id":"3", "nombre":"Diego3", "edad":"23"}
 ]
+
+class crearUsuario(BaseModel):
+    id: int = Field(...,gt=0,description="Identificador de usuario")
+    Nombre: str = Field(..., min_length=3, max_length=50, example="Pepe pecas")
+    Edad: int = Field(..., ge=1, le=125, description="Edad valida entre 1 y 125")
+
+
 
 # endpoints
 @app.get("/", tags=['Inicio'])
@@ -65,9 +73,9 @@ async def consultaT():
 
 # AGREGAR UN USUARIO A NUESTRA TABLA FICTICIA
 @app.post("/v1/usuarios/", tags=['CRUD HTTP'])
-async def agregarUsuario(usuario:dict):
+async def agregarUsuario(usuario:crearUsuario):
     for usr in usuarios:
-        if usr["id"] == usuario.get("id"):
+        if usr["id"] == str(usuario.id):
             raise HTTPException(
                 status_code= 400,
                 detail="El id ya existe"
@@ -95,11 +103,11 @@ async def eliminarUsuario(id:str):
     )
 
 @app.patch("/v1/usuarios/", tags=['CRUD HTTP'])
-async def actualizarUsuario(usuario:dict):
+async def actualizarUsuario(usuario:crearUsuario):
     for usr in usuarios:
-        if usr["id"] == usuario.get("id"):
-            usr["nombre"] = usuario.get("nombre")
-            usr["edad"] = usuario.get("edad")
+        if usr["id"] == str(usuario.id):
+            usr["nombre"] = usuario.Nombre
+            usr["edad"] = str(usuario.Edad)
             return{
                 "msj":"Usuario actualizado",
                 "usuario":usr,
@@ -110,12 +118,12 @@ async def actualizarUsuario(usuario:dict):
         detail="El id no existe"
     )
 
-@app.put("v1/usuarios/", tags=['CRUD HTTP'])
-async def actualizarUsuario2(usuario:dict):
+@app.put("/v1/usuarios/", tags=['CRUD HTTP'])
+async def actualizarUsuario2(usuario:crearUsuario):
     for usr in usuarios:
-        if usr["id"] == usuario.get("id"):
-            usr["nombre"] = usuario.get("nombre")
-            usr["edad"] = usuario.get("edad")
+        if usr["id"] == str(usuario.Edad):
+            usr["nombre"] = usuario.Nombre
+            usr["edad"] = str(usuario.Edad)
             return{
                 "msj":"Usuario actualizado",
                 "usuario":usr,
