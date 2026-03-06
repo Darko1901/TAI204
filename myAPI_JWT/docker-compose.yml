@@ -1,0 +1,8 @@
+services:
+  api:
+    build: .
+    container_name: server_myAPI_JWT
+    ports:
+      - "5012:5012"
+    volumes:
+      - ./app:/app
