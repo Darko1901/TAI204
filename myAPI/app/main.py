@@ -32,10 +32,10 @@ class crearUsuario(BaseModel):
 security = HTTPBasic()
 
 def verificarPeticion(credenciales:HTTPBasicCredentials=Depends(security)):
-    usuarioAuth = secrets.compare_digest(credenciales.username, "Ricardo")
-    contraAuth = secrets.compare_digest(credenciales.password,"123456")
+    usuarioAuthBool = secrets.compare_digest(credenciales.username, "Ricardo")
+    contraAuthBool = secrets.compare_digest(credenciales.password,"123456")
 
-    if not (usuarioAuth and contraAuth):
+    if not (usuarioAuthBool and contraAuthBool):
         raise HTTPException(
             status_code= status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales no autorizadas"

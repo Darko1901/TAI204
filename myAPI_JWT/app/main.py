@@ -26,7 +26,7 @@ SECRET_KEY = "mi_clave_segura"
 # Algoritmo de cifrado para el token
 ALGORITHM = "HS256"
 # Tiempo de vida máximo del token (en minutos)
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 1
 
 # Usaremos credenciales hardcodeadas (en PROD, debería de estar en una BD)
 USUARIO_VALIDO = "Ricardo"
