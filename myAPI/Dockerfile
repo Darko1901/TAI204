@@ -17,6 +17,6 @@ COPY ./app .
 EXPOSE 5000
 
 # Comando de ejecucion FASTAPI
-CMD ["uvicorn","app.main:app","--reload","port 5000"]
+CMD ["uvicorn","app.main:app","--reload","--host","0.0.0.0","--port","5000"]
 
 

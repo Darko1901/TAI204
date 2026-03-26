@@ -2,6 +2,9 @@ from fastapi import HTTPException, Depends, APIRouter
 from app.data.database import usuarios
 from app.models.usuarios import crearUsuario
 from app.security.auth import verificarPeticion
+from sqlalchemy.orm import Session
+from app.data.db import get_db
+from app.data.usuario import Usuario as usuarioDB
 
 router = APIRouter(
     prefix="/v1/usuarios", tags=["CRUD HTTP"]
@@ -9,24 +12,22 @@ router = APIRouter(
 
 # CONSULTAR USUARIOS DE NUESTRA TABLA FICTICIA   
 @router.get("/")
-async def consultaT():
+async def consultaT(db:Session = Depends(get_db)):
+    queryUsuarios = db.query(usuarioDB).all()
     return {"status":"200",
-            "Numero de usuarios":len(usuarios),
-            "Usuarios":usuarios}
+            "Numero de usuarios":len(queryUsuarios),
+            "Usuarios":queryUsuarios}
 
 # AGREGAR UN USUARIO A NUESTRA TABLA FICTICIA
 @router.post("/")
-async def agregarUsuario(usuario:crearUsuario):
-    for usr in usuarios:
-        if usr["id"] == str(usuario.id):
-            raise HTTPException(
-                status_code= 400,
-                detail="El id ya existe"
-            )
-    usuarios.append(usuario)
+async def agregarUsuario(usuarioP:crearUsuario, db:Session = Depends(get_db)):
+    usuarioNuevo = usuarioDB(nombre= usuarioP.Nombre, edad=usuarioP.Edad)
+    db.add(usuarioNuevo)
+    db.commit()
+    db.refresh(usuarioNuevo)
     return{
         "mensaje":"Usuario agregado correctamente",
-        "usuario":usuario,
+        "usuario":usuarioP,
         "status":"200"
     }
 

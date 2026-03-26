@@ -1,3 +1,4 @@
 fastapi
-uvicorn[standar]
-
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
